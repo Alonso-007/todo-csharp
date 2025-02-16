@@ -1,0 +1,79 @@
+name: Build Project
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+
+  versionamento:
+    runs-on: ubuntu-latest
+    name: Versionamento
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{github.head_ref}}
+          fetch-depth: 0
+
+      - uses: codacy/git-version@2.8.0
+        id: version
+        with:
+          relase-branch: main
+          prefix: v
+
+      - name: Tag do repositorio
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }} # usa o token automatico de quem esta executado o pipe e preciso em caso de alteracoes no repo
+        run: |
+          echo "::notice:: ${{ steps.version.outputs.version}}" # pega as saida de algum passo pelo seu id
+          git config --global user.email "${{github.actor}}"@users.noreply.github.com"
+          git config --global user.name "${{github.actor}}"
+          git tag -a ${{steps.version.outputs.version}} -m "Release ${{steps.version.outputs.version}}"
+          git push --tags
+        if: github.ref == 'refs/heads/main'
+        # coloca uma condicao nesse caso esse pipe for gerado na branch main
+
+  build:
+    runs-on: ubuntu-latest
+    name: Build Project
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.x'
+          cache: true
+          cache-dependency-path: ./src/api/packages.lock.json
+
+      - name: Build and Test
+        run: |
+          dotnet restore ./src/Todo.Api.sln
+          dotnet build --no-restore ./src/Todo.Api.sln
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dotnet-test-results
+          path: TestResults
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: ./src/web
+
+      - name: Install dependencies
+        working-directory: ./src/web
+        run: |
+          npm install
+          npm run build
