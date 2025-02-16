@@ -37,9 +37,7 @@ jobs:
           git config --global user.name "${{github.actor}}"
           git tag -a ${{steps.version.outputs.version}} -m "Release ${{steps.version.outputs.version}}"
           git push --tags
-        #  steps.version.outputs.version pega as saida de algum passo pelo seu id
         if: github.ref == 'refs/heads/main'
-        # coloca uma condicao nesse caso esse pipe for gerado na branch main
 
   build:
     runs-on: ubuntu-latest
