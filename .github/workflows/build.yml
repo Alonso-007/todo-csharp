@@ -44,7 +44,7 @@ jobs:
 
       - name: Build and Test
         run: |
-          dotnet restore ./src/Todo.Apu.sln
+          dotnet restore ./src/Todo.Api.sln
           dotnet build --no-restore ./src/Todo.Api.sln
 
       - uses: actions/upload-artifact@v4
