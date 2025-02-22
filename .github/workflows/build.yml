@@ -66,11 +66,11 @@ jobs:
 
       - name: Build
         run: |
-          dotnet build --no-restore ./src/Todo.Api.sln
+          dotnet build --no-restore ./src/Todo.Api.sln --configuration Release
 
       - name: Test
         run: |
-          dotnet test --no-build --no-restore ./src/Todo.Api.sln --configuration Release --logger tr --results-directory "TestResults"
+          dotnet test ./src/Todo.Api.sln --no-build --no-restore --configuration Release --logger tr --results-directory "TestResults"
 
       - uses: actions/upload-artifact@v4
         with:
