@@ -7,7 +7,12 @@ on:
   pull_request:
     branches:
       - main
-  workflow_dispatch:
+  workflow_dispatch: # permiti gerar pipe pela tela do github
+
+# caso já tenha um workflow(pipe) para a branch e o mesmo esteja rodando e seja gerado outro sera cancelado o mais antigo
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
 
@@ -76,6 +81,26 @@ jobs:
         with:
           name: dotnet-test-results
           path: TestResults
+
+  backend-lint:
+    needs: backend-build-and-test
+    runs-on: ubuntu-latest
+    name: Backend lint
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: github/super-linter@v6
+        env:
+          DEFAULT_BRANCH: "main"
+          VALIDATE_ALL_CODEBASE: "false"
+          VALIDATE_YAML: "true"
+          VALIDATE_CSHARP: "true"
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
 
 
   frontend-build-and-test:
