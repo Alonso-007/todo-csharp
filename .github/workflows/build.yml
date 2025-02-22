@@ -14,7 +14,7 @@ jobs:
   versionamento:
     runs-on: ubuntu-latest
     name: Versionamento
-    permissions:
+    permissions: #serve para gerarmos a tag e escrever no repo
       contents: write
 
     steps:
@@ -29,6 +29,7 @@ jobs:
         with:
           relase-branch: main
           prefix: v
+      # o numero versoes e gerado com base no texto do commit feature minor, breaking major etc olhar a documentacao
 
       - name: Tag do repositorio
         env:
@@ -43,7 +44,43 @@ jobs:
         if: github.ref == 'refs/heads/main'
         # coloca uma condicao nesse caso esse pipe for gerado na branch main
 
-  build:
+  backend-build-and-test:
+    needs: versionamento
+    runs-on: ubuntu-latest
+    name: Backend Build and Test
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.x'
+          cache: true
+          cache-dependency-path: ./src/api/packages.lock.json
+
+      - name: Restore
+        run: |
+          dotnet restore ./src/Todo.Api.sln
+
+      - name: Build
+        run: |
+          dotnet build --no-restore ./src/Todo.Api.sln
+
+      - name: Test
+        run: |
+          dotnet test --no-build --no-restore ./src/Todo.Api.sln --configuration Release --logger tr --results-directory "TestResults"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dotnet-test-results
+          path: TestResults
+
+
+  frontend-build-and-test:
+    # faz com q nunca execute esse trecho
+    if: false
     runs-on: ubuntu-latest
     name: Build Project
 
