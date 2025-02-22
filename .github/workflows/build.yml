@@ -79,31 +79,17 @@ jobs:
 
 
   frontend-build-and-test:
-    # faz com q nunca execute esse trecho
-    if: false
+    # faz com q nunca execute esse trecho if: false
+    needs: versionamento
     runs-on: ubuntu-latest
-    name: Build Project
+    name: Frontend Build and Test
+    defaults:
+      run:
+        working-directory: ./src/web
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
-      - name: Setup .NET Core
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: '8.x'
-          cache: true
-          cache-dependency-path: ./src/api/packages.lock.json
-
-      - name: Build and Test
-        run: |
-          dotnet restore ./src/Todo.Api.sln
-          dotnet build --no-restore ./src/Todo.Api.sln
-
-      - uses: actions/upload-artifact@v4
-        with:
-          name: dotnet-test-results
-          path: TestResults
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -113,7 +99,16 @@ jobs:
           cache-dependency-path: ./src/web
 
       - name: Install dependencies
-        working-directory: ./src/web
+        # working-directory: ./src/web esta agora no defaults
         run: |
-          npm install
+          npm ci
+
+      - name: Lint
+        # working-directory: ./src/web esta agora no defaults
+        run: |
+          npm run lint
+
+      - name: Build
+        # working-directory: ./src/web esta agora no defaults
+        run: |
           npm run build
