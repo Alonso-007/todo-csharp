@@ -70,7 +70,7 @@ jobs:
 
       - name: Test
         run: |
-          dotnet test ./src/Todo.Api.sln --no-build --no-restore --configuration Release --logger tr --results-directory "TestResults"
+          dotnet test ./src/Todo.Api.sln --no-build --no-restore --configuration Release --logger trx --results-directory "TestResults"
 
       - uses: actions/upload-artifact@v4
         with:
