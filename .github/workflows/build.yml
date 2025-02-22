@@ -102,6 +102,7 @@ jobs:
           # VALIDATE_JAVASCRIPT_ES: "true"
           # VALIDATE_TYPESCRIPT_ES: "true"
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    if: github.ref != 'refs/heads/main'
 
   frontend-build-and-test:
     # faz com q nunca execute esse trecho if: false
