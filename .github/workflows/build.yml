@@ -83,7 +83,7 @@ jobs:
           path: TestResults
 
   backend-lint:
-    needs: backend-build-and-test
+    needs: versionamento
     runs-on: ubuntu-latest
     name: Backend lint
 
@@ -99,9 +99,9 @@ jobs:
           VALIDATE_ALL_CODEBASE: "false"
           VALIDATE_YAML: "true"
           VALIDATE_CSHARP: "true"
+          # VALIDATE_JAVASCRIPT_ES: "true"
+          # VALIDATE_TYPESCRIPT_ES: "true"
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-
 
   frontend-build-and-test:
     # faz com q nunca execute esse trecho if: false
