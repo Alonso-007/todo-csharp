@@ -83,7 +83,7 @@ jobs:
           path: TestResults
 
   backend-lint:
-    needs: backend-build-and-test
+    needs: versionamento
     runs-on: ubuntu-latest
     name: Backend lint
 
@@ -99,9 +99,10 @@ jobs:
           VALIDATE_ALL_CODEBASE: "false"
           VALIDATE_YAML: "true"
           VALIDATE_CSHARP: "true"
+          # VALIDATE_JAVASCRIPT_ES: "true"
+          # VALIDATE_TYPESCRIPT_ES: "true"
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-
+    if: github.ref != 'refs/heads/main'
 
   frontend-build-and-test:
     # faz com q nunca execute esse trecho if: false
@@ -137,3 +138,20 @@ jobs:
         # working-directory: ./src/web esta agora no defaults
         run: |
           npm run build
+
+  # valida se alguma dependencia externa do nosso projeto tipo nuget ou npm tem alguma vulnerabilidade explorada
+  dependency-check:
+    name: Dependency Check
+    needs: versionamento
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/dependency-review-action@v4
+        with:
+          comment-summary-in-pr: always
+    if: github.ref != 'refs/heads/main'
