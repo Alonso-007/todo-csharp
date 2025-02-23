@@ -138,3 +138,14 @@ jobs:
         # working-directory: ./src/web esta agora no defaults
         run: |
           npm run build
+
+  # valida se alguma dependencia externa do nosso projeto tipo nuget ou npm tem alguma vulnerabilidade explorada
+  dependency-check:
+    name: Dependency Check
+    needs: versionamento
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/dependency-review-action@v4
