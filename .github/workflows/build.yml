@@ -233,7 +233,7 @@ jobs:
 
       - name: Tag Docker image as Latest
         run: |
-          docker tag ${{ vars.DOCKERHUB_REPOSITORY }}:${{ env.version }} ${{ vars.DOCKERHUB_REPOSITORY }}:latest
+          docker tag ${{ vars.DOCKERHUB_REPOSITORY }}/todo-app:${{ env.version }} ${{ vars.DOCKERHUB_REPOSITORY }}/todo-app:latest
         if: github.ref == 'refs/heads/main'
 
       - name: Docker Login
