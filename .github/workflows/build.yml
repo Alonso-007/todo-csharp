@@ -244,4 +244,4 @@ jobs:
 
       - name: Docker Push
         run: |
-          docker push --all-tags ${{ vars.DOCKERHUB_REPOSITORY }}/todo-app
+          docker push --all-tags alonso007/todo-app
