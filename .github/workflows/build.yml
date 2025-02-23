@@ -229,4 +229,4 @@ jobs:
 
       - name: Build Docker image
         run: |
-          docker build -t todo-app${{ env.version }}
+          docker build -t todo-app${{ env.version }} .
