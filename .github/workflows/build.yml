@@ -22,6 +22,9 @@ jobs:
     permissions: #serve para gerarmos a tag e escrever no repo
       contents: write
 
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -82,6 +85,16 @@ jobs:
           name: dotnet-test-results
           path: TestResults
 
+      - name: Publish
+        run: dotnet publish ./src/api/Todo.Api.csproj --no-restore --no-build --configuration Release --output ./publish
+
+      # precisa faz upload para q outro job possa usar esse artefato
+      - name: Upload dotnet artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: api
+          path: ./publish
+
   backend-lint:
     needs: versionamento
     runs-on: ubuntu-latest
@@ -139,6 +152,11 @@ jobs:
         run: |
           npm run build
 
+      - uses: actions/upload-artifact@v4
+        with:
+          name: web
+          path: ./src/web/dist
+
   # valida se alguma dependencia externa do nosso projeto tipo nuget ou npm tem alguma vulnerabilidade explorada
   dependency-check:
     name: Dependency Check
@@ -192,3 +210,23 @@ jobs:
         with:
           category: "/language:${{ matrix.language }}"
     if: github.ref != 'refs/heads/main'
+
+  build-docker-image:
+    name: Packing and Publish
+    needs: [versionamento, backend-build-and-test, frontend-build-and-test]
+    runs-on: ubuntu-latest
+
+    env:
+      version: ${{ needs.versionamento.outputs.version }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          path: app
+          merge-multiple: false
+
+      - name: Build Docker image
+        run: |
+          docker build -t todo-app${{ env.version }}
